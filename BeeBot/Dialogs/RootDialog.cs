@@ -164,8 +164,7 @@ namespace BeeBot.Dialogs
 
         [LuisIntent("CheckLecture")]
         public async Task CheckLecture(IDialogContext context, LuisResult result)
-        {
-        
+        {       
             // Setup the configuration to support document loading
             var config = AngleSharp.Configuration.Default.WithDefaultLoader();
             // Load the names of all The Big Bang Theory episodes from Wikipedia
@@ -251,7 +250,6 @@ namespace BeeBot.Dialogs
                         await context.PostAsync($"Day: {value.Day_rec}");
                         await context.PostAsync($"Time: {value.Time_rec}");
                     }
-
                 }
                 else if (searchEntity.Type == "CourseCode")
                 {
@@ -266,9 +264,17 @@ namespace BeeBot.Dialogs
                     }
                 }
             }
-
             context.Wait(MessageReceived);
         }
+
+        [LuisIntent("SearchLocation")]
+        public async Task SearchLocation(IDialogContext context, LuisResult result)
+        {
+            await context.PostAsync($"https://www.google.com.tr/maps/place/41%C2%B004'11.0%22N+29%C2%B000'24.4%22E/@41.0697323,29.0049679,17z/data=!3m1!4b1!4m5!3m4!1s0x0:0x0!8m2!3d41.069729!4d29.006782");
+            context.Wait(MessageReceived);
+        }
+
+
 
     }
 }
