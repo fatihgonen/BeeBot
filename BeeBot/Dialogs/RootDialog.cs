@@ -1,19 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Connector;
-using Microsoft.Bot.Builder.Luis;
-using Microsoft.Bot.Builder.Luis.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Data.SqlClient;
-using System.Configuration;
+﻿using AngleSharp;
 using HtmlAgilityPack;
 using HtmlParser.Model;
-using System.Text;
-using AngleSharp;
-
-namespace BeeBot.Dialogs
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Builder.Luis;
+using Microsoft.Bot.Builder.Luis.Models;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
+using Database;
+namespace Database.Dialogs
 {
     [LuisModel("dea53d37-6228-4476-aea3-02ba7b60eed9", "d0ec767e58ca4f72a7198d4cc49d56da")]
     [Serializable]
@@ -34,13 +32,16 @@ namespace BeeBot.Dialogs
         [LuisIntent("Greetings")]
         public async Task Greetings(IDialogContext context, LuisResult result)
         {
-            await context.PostAsync($"Hi i am BeeBot and i am here to help ITU students. If you want further information about how to use please try writing help.");
+            await context.PostAsync($"Hi i am a BeeBot and i am here to help ITU students. If you want further information about how to use please try writing help.");
+            Coure_db data = new Coure_db();
+            data.Lecturer_info();
             context.Wait(MessageReceived);
+
         }
         [LuisIntent("Help")]
         public async Task Help(IDialogContext context, LuisResult result)
         {
-            await context.PostAsync($" ");
+            await context.PostAsync($"You can ask me some questions about ring times, courses and lecturer information ");
             context.Wait(MessageReceived);
         }
         [LuisIntent("CheckTime")]
@@ -55,11 +56,23 @@ namespace BeeBot.Dialogs
             }
             if(myentity=="mediko")
             {
-                await context.PostAsync($"Working hours of '{myentity}'== 8 6 ");
+                await context.PostAsync($"Working hours of '{myentity}'== 9-6 ");
             }
-            else if(myentity=="yemekhane")
+            else if(myentity=="yemekhane"|| myentity =="lunch"||myentity=="dinner")
             {
-                await context.PostAsync($"{myentity} starts at  9 5 ");
+                if(myentity == "lunch")
+                {
+                    await context.PostAsync($"{myentity} starts at  11.30 and continues till the 14.30 ");
+                }
+                if(myentity == "dinner")
+                {
+                    await context.PostAsync($"{myentity} starts at  17.30 and continues till the 19.30 ");
+                }
+                if(myentity == "yemekhane")
+                {
+                    await context.PostAsync($"Lunch starts at  11.30 and continues till the 14.30 and dinner starts at  17.30 and continues till the 19.30  ");
+
+                }
             }
             else
             {
@@ -72,9 +85,10 @@ namespace BeeBot.Dialogs
         [LuisIntent("ring")]
         public async Task Ring(IDialogContext context, LuisResult result)
         {
+                   
             List<string> ring_times = new List<string>(new string[] { "8:00", "8:30" ,"9:00","9:30","10:00",
-                "10:30","10:50","11:10","11:30","11:50","12:10","12:30","12:50","13:10","13:30","13:50",
-                "14:10","14:30","14:50","15:10","15:30","15:50","16:10","16:30","16:50",
+                 "10:30","10:50","11:10","11:30","11:50","12:10","12:30","12:50","13:10","13:30","13:50",
+            "14:10","14:30","14:50","15:10","15:30","15:50","16:10","16:30","16:50",
                 "17:10","17:30","17:50","18:20","18:50","19:20"});
 
             for (int i = 0; i< ring_times.Count; i++)
@@ -96,6 +110,7 @@ namespace BeeBot.Dialogs
                     break;
                 }
             }
+
             context.Wait(MessageReceived);
         }
        
@@ -105,7 +120,6 @@ namespace BeeBot.Dialogs
             string ToSearch="";
             foreach (var searchEntity in result.Entities)
             {
-                await context.PostAsync(searchEntity.Type);
                 if (searchEntity.Type=="LecturerName")
                 {
                    ToSearch = searchEntity.Entity;
@@ -124,7 +138,7 @@ namespace BeeBot.Dialogs
                     if(reader[0].ToString().ToLower().Contains(ToSearch))
                     {
                         await context.PostAsync($"Found");
-                        await context.PostAsync(String.Format("{0} \t | {1} \t | {2}",
+                        await context.PostAsync(String.Format("{0} \t |Mail Adress  {1} \t | Office No {2}",
                         reader[0], reader[1], reader[2]));
                     }
                 }  
@@ -164,10 +178,13 @@ namespace BeeBot.Dialogs
 
         [LuisIntent("CheckLecture")]
         public async Task CheckLecture(IDialogContext context, LuisResult result)
-        {       
+        {
+
+        
             // Setup the configuration to support document loading
             var config = AngleSharp.Configuration.Default.WithDefaultLoader();
             // Load the names of all The Big Bang Theory episodes from Wikipedia
+      
             string b = "BIO";
             var address = "http://www.sis.itu.edu.tr/tr/ders_programlari/LSprogramlar/prg.php?fb=" + b;
             // Asynchronously get the document in a new context using the configuration
@@ -215,16 +232,18 @@ namespace BeeBot.Dialogs
             List<Record> SearchResults;
 
 
+
             string search_key;
             foreach (var searchEntity in result.Entities)
             {
+                await context.PostAsync(searchEntity.Entity);
                 search_key = searchEntity.Entity;
-                await context.PostAsync(searchEntity.Type);
+
                 if (searchEntity.Type == "CRN")
                 {
                     SearchResults = records.Where(a => a.Crn_rec.ToLower().Contains(search_key.ToLower())).ToList();
 
-                    await context.PostAsync($"Lesson with CRN {searchEntity}");
+                    await context.PostAsync($"Lesson with CRN {searchEntity.Entity}");
 
                     foreach (var value in SearchResults)
                     {
@@ -234,13 +253,12 @@ namespace BeeBot.Dialogs
                         await context.PostAsync($"Day: {value.Day_rec}");
                         await context.PostAsync($"Time: {value.Time_rec}");
                     }
-
                 }
                 else if (searchEntity.Type == "LecturerName")
                 {
                     SearchResults = records.Where(a => a.Instructor_rec.ToLower().Contains(search_key.ToLower())).ToList();
 
-                    await context.PostAsync($"Lessons {searchEntity} give:");
+                    await context.PostAsync($"Lessons {searchEntity.Entity} give:");
 
                     foreach (var value in SearchResults)
                     {
@@ -250,11 +268,12 @@ namespace BeeBot.Dialogs
                         await context.PostAsync($"Day: {value.Day_rec}");
                         await context.PostAsync($"Time: {value.Time_rec}");
                     }
+
                 }
                 else if (searchEntity.Type == "CourseCode")
                 {
                     SearchResults = records.Where(a => a.CourseCode_rec.ToLower().Contains(search_key.ToLower())).ToList();
-                    await context.PostAsync($"Lessons with course code{searchEntity}");
+                    await context.PostAsync($"Lessons with course code{searchEntity.Entity}");
                     foreach (var value in SearchResults)
                     {
                         await context.PostAsync($"Building: {value.Building_rec}");
@@ -264,17 +283,9 @@ namespace BeeBot.Dialogs
                     }
                 }
             }
+
             context.Wait(MessageReceived);
         }
-
-        [LuisIntent("SearchLocation")]
-        public async Task SearchLocation(IDialogContext context, LuisResult result)
-        {
-            await context.PostAsync($"https://www.google.com.tr/maps/place/41%C2%B004'11.0%22N+29%C2%B000'24.4%22E/@41.0697323,29.0049679,17z/data=!3m1!4b1!4m5!3m4!1s0x0:0x0!8m2!3d41.069729!4d29.006782");
-            context.Wait(MessageReceived);
-        }
-
-
 
     }
 }
