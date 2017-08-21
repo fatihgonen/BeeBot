@@ -33,8 +33,8 @@ namespace Database.Dialogs
         public async Task Greetings(IDialogContext context, LuisResult result)
         {
             await context.PostAsync($"Hi i am a BeeBot and i am here to help ITU students. If you want further information about how to use please try writing help.");
-            Coure_db data = new Coure_db();
-            data.Lecturer_info();
+            //Coure_db data = new Coure_db();
+            //data.Lecturer_info();
             context.Wait(MessageReceived);
 
         }
@@ -125,7 +125,6 @@ namespace Database.Dialogs
                    ToSearch = searchEntity.Entity;
                 }
             }
-
             string connStr = ConfigurationManager.ConnectionStrings["DataConnectionString"].ConnectionString;
             SqlConnection conn = new SqlConnection(connStr);
             conn.Open();
@@ -135,14 +134,15 @@ namespace Database.Dialogs
             {
                 while (reader.Read())
                 {
-                    if(reader[0].ToString().ToLower().Contains(ToSearch))
+                    if (reader[0].ToString().ToLower().Contains(ToSearch))
                     {
                         await context.PostAsync($"Found");
                         await context.PostAsync(String.Format("{0} \t |Mail Adress  {1} \t | Office No {2}",
                         reader[0], reader[1], reader[2]));
                     }
-                }  
+                }
             }
+            context.Wait(MessageReceived);
         }
 
         [LuisIntent("SearchBook")]
@@ -157,133 +157,72 @@ namespace Database.Dialogs
             HtmlDocument doc = web.Load(Url);
             await context.PostAsync($"Searching2");
 
-            //string metascore = doc.DocumentNode.SelectNodes("//*[@id=\"main\"]/div[3]/div/div[2]/div[1]/div[1]/div/div/div[2]/a/span[1]")[0].InnerText;
             string SearchResult = doc.DocumentNode.SelectNodes("//*[@id=\"entry - list\"]/li[1]/div[1]")[0].InnerText;
-            //var SearchResult = doc.DocumentNode.SelectNodes("//*[@id=\"FETCH - itu_catalog_b209553882\"]/div[1]/div[2]/div/h3/span")[0].InnerText;
-
-            //*[@id="FETCH-itu_catalog_b209553882"]
             await context.PostAsync($"Searching3");
 
-            //string summary = doc.DocumentNode.SelectNodes("//*[@id=\"main\"]/div[3]/div/div[2]/div[2]/div[1]/ul/li/span[2]/span/span[1]")[0].InnerText;
             await context.PostAsync(SearchResult);
             await context.PostAsync($"Searching4");
-
-            //*[@id="FETCH-itu_catalog_b209553882"]/div[1]/div[2]/div
-
             context.Wait(MessageReceived);
 
-            //*[@id="results"]/div/ul/li[2]
-            //*[@id="results"]/div/ul/li[2]
         }
 
         [LuisIntent("CheckLecture")]
         public async Task CheckLecture(IDialogContext context, LuisResult result)
         {
+            string connStr = ConfigurationManager.ConnectionStrings["DataConnectionString"].ConnectionString;
+            SqlConnection conn = new SqlConnection(connStr);
+            conn.Open();
+            SqlCommand command = new SqlCommand("SELECT * FROM Course_info", conn);
 
-        
-            // Setup the configuration to support document loading
-            var config = AngleSharp.Configuration.Default.WithDefaultLoader();
-            // Load the names of all The Big Bang Theory episodes from Wikipedia
-      
-            string b = "BIO";
-            var address = "http://www.sis.itu.edu.tr/tr/ders_programlari/LSprogramlar/prg.php?fb=" + b;
-            // Asynchronously get the document in a new context using the configuration
-            var document = await BrowsingContext.New(config).OpenAsync(address);
-            // This CSS selector gets the desired content
-
-            var cellSelector1 = "tr td:nth-child(1)";//Crn
-            var cellSelector2 = "tr td:nth-child(2)";//Course Code
-            var cellSelector3 = "tr td:nth-child(3)";//Course Title
-            var cellSelector4 = "tr td:nth-child(4)";//Instructor
-            var cellSelector5 = "tr td:nth-child(5)";//Building
-            var cellSelector6 = "tr td:nth-child(6)";//Day
-            var cellSelector7 = "tr td:nth-child(7)";//Time
-            var cellSelector8 = "tr td:nth-child(8)";//Capacity
-            var cellSelector9 = "tr td:nth-child(9)";//Major Restriction
-
-            var crn = document.QuerySelectorAll(cellSelector1).Skip(5).ToList();
-            var CourseCode = document.QuerySelectorAll(cellSelector2).Skip(4).ToList();
-            var CourseTitle = document.QuerySelectorAll(cellSelector3).Skip(3).ToList();
-            var Instructor = document.QuerySelectorAll(cellSelector4).Skip(2).ToList();
-            var Building = document.QuerySelectorAll(cellSelector5).Skip(2).ToList();
-            var Day = document.QuerySelectorAll(cellSelector6).Skip(2).ToList();
-            var Time = document.QuerySelectorAll(cellSelector7).Skip(2).ToList();
-            var Capacity = document.QuerySelectorAll(cellSelector8).Skip(2).ToList();
-            var Restriction = document.QuerySelectorAll(cellSelector9).Skip(2).ToList();
-
-            var records = new List<Record>();
-            for (int i = 0; i < CourseTitle.Count - 1; i++)
-            {
-                var rec = new Record()
-                {
-                    CourseTitle_rec = CourseTitle[i].TextContent,
-                    Instructor_rec = Instructor[i].TextContent,
-                    Crn_rec = crn[i].TextContent,
-                    CourseCode_rec = CourseCode[i].TextContent,
-                    Building_rec = Building[i].TextContent,
-                    Day_rec = Day[i].TextContent,
-                    Time_rec = Time[i].TextContent,
-                    Capacity_rec = Capacity[i].TextContent,
-                    Restriction_rec = Restriction[i].TextContent,
-                };
-
-                records.Add(rec);
-            }
-            List<Record> SearchResults;
-
-
-
+            string search_type;
             string search_key;
-            foreach (var searchEntity in result.Entities)
-            {
-                await context.PostAsync(searchEntity.Entity);
-                search_key = searchEntity.Entity;
+            search_key=result.Entities[0].Entity;
+            search_type = result.Entities[0].Type;
 
-                if (searchEntity.Type == "CRN")
-                {
-                    SearchResults = records.Where(a => a.Crn_rec.ToLower().Contains(search_key.ToLower())).ToList();
-
-                    await context.PostAsync($"Lesson with CRN {searchEntity.Entity}");
-
-                    foreach (var value in SearchResults)
+            using (SqlDataReader reader = command.ExecuteReader())
+            {     
+                    if (search_type == "CRN")
                     {
-                        await context.PostAsync($"Lecturer: {value.Instructor_rec}");
-                        await context.PostAsync($"Building: {value.Building_rec}");
-                        await context.PostAsync($"Course Title: {value.CourseTitle_rec}");
-                        await context.PostAsync($"Day: {value.Day_rec}");
-                        await context.PostAsync($"Time: {value.Time_rec}");
+                        while (reader.Read())
+                        {
+                            if (reader[0].ToString().ToLower().Contains(search_key))
+                            {
+                                await context.PostAsync($"Lesson with CRN {search_key}");
+                                await context.PostAsync(String.Format("{0} \t |CRN  {1} \t | CourseCode"+
+                                "{2} \t | CourseTitle {3} \t | Instructor {4} \t |Day {5} \t |Time ",
+                                reader[0], reader[1], reader[2], reader[3], reader [5], reader[6]));
+                            }
+                        }
                     }
-                }
-                else if (searchEntity.Type == "LecturerName")
-                {
-                    SearchResults = records.Where(a => a.Instructor_rec.ToLower().Contains(search_key.ToLower())).ToList();
-
-                    await context.PostAsync($"Lessons {searchEntity.Entity} give:");
-
-                    foreach (var value in SearchResults)
+                    else if (search_type == "LecturerName")
                     {
-                        await context.PostAsync($"Course Title: {value.CourseTitle_rec}");
-                        await context.PostAsync($"Course Code: {value.CourseCode_rec}");
-                        await context.PostAsync($"Building: {value.Building_rec}");
-                        await context.PostAsync($"Day: {value.Day_rec}");
-                        await context.PostAsync($"Time: {value.Time_rec}");
+                        while (reader.Read())
+                        {
+                            if (reader[3].ToString().ToLower().Contains(search_key))
+                            {
+                                await context.PostAsync($"Lesson with Lecturer {search_key}");
+                                await context.PostAsync(String.Format("{0} \t |CRN  {1} \t | CourseCode" +
+                                "{2} \t | CourseTitle {3} \t | Instructor {4} \t |Day {5} \t |Time ",
+                                reader[0], reader[1], reader[2], reader[3], reader[5], reader[6]));
+                            }
+                        }
                     }
-
-                }
-                else if (searchEntity.Type == "CourseCode")
-                {
-                    SearchResults = records.Where(a => a.CourseCode_rec.ToLower().Contains(search_key.ToLower())).ToList();
-                    await context.PostAsync($"Lessons with course code{searchEntity.Entity}");
-                    foreach (var value in SearchResults)
+                    else if (search_type == "CourseCode")
                     {
-                        await context.PostAsync($"Building: {value.Building_rec}");
-                        await context.PostAsync($"Course Title: {value.CourseTitle_rec}");
-                        await context.PostAsync($"Day: {value.Day_rec}");
-                        await context.PostAsync($"Time: {value.Time_rec}");
-                    }
-                }
+                        while (reader.Read())
+                        {
+                            if (reader[1].ToString().ToLower().Contains(search_key))
+                            {
+                                await context.PostAsync($"Lesson with Course Code {search_key}");
+                                await context.PostAsync(String.Format("{0} \t |CRN  {1} \t | CourseCode" +
+                                "{2} \t | CourseTitle {3} \t | Instructor {4} \t |Day {5} \t |Time ",
+                                reader[0], reader[1], reader[2], reader[3], reader[5], reader[6]));
+
+                            }
+                        }
+                    }            
             }
-
+      
             context.Wait(MessageReceived);
         }
 

@@ -14,9 +14,7 @@ namespace Database
         {
             string connStr = ConfigurationManager.ConnectionStrings["DataConnectionString"].ConnectionString;
             SqlConnection conn = new SqlConnection(connStr);
-            
-           
-          
+                              
 
             List<string> courses_list = new List<string>(new string[]
             {"AKM","ATA","ALM","BEB","BED","BEN","BIL","BIO","BLG","BLS","BUS","CAB","CEV","CHE","CHZ","CIE","CMP",
@@ -61,14 +59,12 @@ namespace Database
 
                 conn.Open();
 
-
                 SqlCommand insertCommand = new SqlCommand();
                 insertCommand = conn.CreateCommand();
 
                 for (int i = 0; i < crn.Count-1; i++)
                 {
                     insertCommand.Parameters.Clear();
-
 
                     insertCommand.CommandText="INSERT INTO Course_info (CRN, CourseCode,CourseTitle, Instructor," +
 "Building,Day,Time,Room,Capacity,MajorRestriction)VALUES (@0, @1, @2, @3,@4,@5,@6,@7,@8,@9)";
@@ -84,16 +80,10 @@ namespace Database
                     insertCommand.Parameters.AddWithValue("8", Capacity[i].TextContent);
                     insertCommand.Parameters.AddWithValue("9", Restriction[i].TextContent);
 
-
                     insertCommand.ExecuteNonQuery();
 
-
                 }
-                // In the command, there are some parameters denoted by @, you can 
-                // change their value on a condition, in my code they're hardcoded.
-
                 conn.Close();
-                //   }
             }
 
 
