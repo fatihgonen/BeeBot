@@ -36,7 +36,6 @@ namespace Database.Dialogs
             //Coure_db data = new Coure_db();
             //data.Lecturer_info();
             context.Wait(MessageReceived);
-
         }
         [LuisIntent("Help")]
         public async Task Help(IDialogContext context, LuisResult result)
@@ -137,7 +136,7 @@ namespace Database.Dialogs
                     if (reader[0].ToString().ToLower().Contains(ToSearch))
                     {
                         await context.PostAsync($"Found");
-                        await context.PostAsync(String.Format("{0} \t |Mail Adress  {1} \t | Office No {2}",
+                        await context.PostAsync(String.Format("{0} \t |Mail Adress:  {1} \t | Office No: {2}",
                         reader[0], reader[1], reader[2]));
                     }
                 }
@@ -145,27 +144,7 @@ namespace Database.Dialogs
             context.Wait(MessageReceived);
         }
 
-        [LuisIntent("SearchBook")]
-        public async Task SearchBook(IDialogContext context, LuisResult result)
-        {
-            await context.PostAsync($"Searching");
-
        
-                string Url = "";
-                HtmlWeb web = new HtmlWeb();
-
-            HtmlDocument doc = web.Load(Url);
-            await context.PostAsync($"Searching2");
-
-            string SearchResult = doc.DocumentNode.SelectNodes("//*[@id=\"entry - list\"]/li[1]/div[1]")[0].InnerText;
-            await context.PostAsync($"Searching3");
-
-            await context.PostAsync(SearchResult);
-            await context.PostAsync($"Searching4");
-            context.Wait(MessageReceived);
-
-        }
-
         [LuisIntent("CheckLecture")]
         public async Task CheckLecture(IDialogContext context, LuisResult result)
         {
@@ -188,8 +167,8 @@ namespace Database.Dialogs
                             if (reader[0].ToString().ToLower().Contains(search_key))
                             {
                                 await context.PostAsync($"Lesson with CRN {search_key}");
-                                await context.PostAsync(String.Format("{0} \t |CRN  {1} \t | CourseCode"+
-                                "{2} \t | CourseTitle {3} \t | Instructor {4} \t |Day {5} \t |Time ",
+                                await context.PostAsync(String.Format("CRN {0} \t |CourseCode  {1} \t |" +
+                                "CourseTitle{2} \t |  {3} \t | Instructor {4} \t |Day {5} \t |Time ",
                                 reader[0], reader[1], reader[2], reader[3], reader [5], reader[6]));
                             }
                         }
@@ -206,7 +185,7 @@ namespace Database.Dialogs
                                 reader[0], reader[1], reader[2], reader[3], reader[5], reader[6]));
                             }
                         }
-                    }
+                    }   
                     else if (search_type == "CourseCode")
                     {
                         while (reader.Read())
@@ -217,12 +196,42 @@ namespace Database.Dialogs
                                 await context.PostAsync(String.Format("{0} \t |CRN  {1} \t | CourseCode" +
                                 "{2} \t | CourseTitle {3} \t | Instructor {4} \t |Day {5} \t |Time ",
                                 reader[0], reader[1], reader[2], reader[3], reader[5], reader[6]));
-
                             }
                         }
                     }            
             }
-      
+
+            conn.Close();
+            context.Wait(MessageReceived);
+        }
+
+        [LuisIntent("SearchLocation")]
+        public async Task SearchLocation(IDialogContext context, LuisResult result)
+        {
+
+            string location;
+            location = result.Entities[0].Entity;
+
+            if(location=="yemekhane")
+            {
+                await context.PostAsync($"");
+            }
+            else if(location=="mediko")
+            {
+                await context.PostAsync($"");
+            }
+            else if (location=="bilgi islem")
+            {
+                await context.PostAsync($"");
+            }
+            else if (location=="ogrenci isleri")
+            {
+                await context.PostAsync($"");
+            }
+            else if (location=="med")
+            {
+                await context.PostAsync($"");
+            }
             context.Wait(MessageReceived);
         }
 
