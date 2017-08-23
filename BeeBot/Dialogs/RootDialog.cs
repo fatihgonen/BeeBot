@@ -11,6 +11,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Database;
+
 namespace Database.Dialogs
 {
     [LuisModel("dea53d37-6228-4476-aea3-02ba7b60eed9", "d0ec767e58ca4f72a7198d4cc49d56da")]
@@ -89,26 +90,28 @@ namespace Database.Dialogs
                  "10:30","10:50","11:10","11:30","11:50","12:10","12:30","12:50","13:10","13:30","13:50",
             "14:10","14:30","14:50","15:10","15:30","15:50","16:10","16:30","16:50",
                 "17:10","17:30","17:50","18:20","18:50","19:20"});
-
+            string to_write;
             for (int i = 0; i< ring_times.Count; i++)
             {
                 TimeSpan now = DateTime.Now.TimeOfDay;
                 TimeSpan ring = TimeSpan.Parse(ring_times[i]);
                if(ring > now)
                 {
-                    await context.PostAsync($" Soonest shuttle hours:");
-                    await context.PostAsync($" {ring_times[i]} ");
+                    to_write=" Soonest shuttle hours: ";
+                    to_write=to_write+ring_times[i]+"|";
                     if (i+1<ring_times.Count)
                     {
-                        await context.PostAsync($" {ring_times[i+1]} ");
+                        to_write=to_write+ring_times[i+1]+"|";
                         if (i + 2< ring_times.Count)
                         {
-                            await context.PostAsync($" {ring_times[i + 2]} ");
+                            to_write=to_write+ring_times[i + 2];
                         }
                     }
+                    await context.PostAsync(to_write);
                     break;
                 }
             }
+           
 
             context.Wait(MessageReceived);
         }
@@ -167,9 +170,10 @@ namespace Database.Dialogs
                             if (reader[0].ToString().ToLower().Contains(search_key))
                             {
                                 await context.PostAsync($"Lesson with CRN {search_key}");
-                                await context.PostAsync(String.Format("CRN {0} \t |CourseCode  {1} \t |" +
-                                "CourseTitle{2} \t |  {3} \t | Instructor {4} \t |Day {5} \t |Time ",
-                                reader[0], reader[1], reader[2], reader[3], reader [5], reader[6]));
+                                await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
+                                "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
+                                "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8} ",
+                                reader[0], reader[1], reader[2], reader[3], reader[4],  reader [5], reader[6],reader[7],reader[8]));                        
                             }
                         }
                     }
@@ -180,9 +184,11 @@ namespace Database.Dialogs
                             if (reader[3].ToString().ToLower().Contains(search_key))
                             {
                                 await context.PostAsync($"Lesson with Lecturer {search_key}");
-                                await context.PostAsync(String.Format("{0} \t |CRN  {1} \t | CourseCode" +
-                                "{2} \t | CourseTitle {3} \t | Instructor {4} \t |Day {5} \t |Time ",
-                                reader[0], reader[1], reader[2], reader[3], reader[5], reader[6]));
+                                await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
+                                "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
+                                "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8}",
+                                reader[0], reader[1], reader[2], reader[3], reader[4], reader[5], reader[6],
+                                reader[7], reader[8]));
                             }
                         }
                     }   
@@ -193,14 +199,17 @@ namespace Database.Dialogs
                             if (reader[1].ToString().ToLower().Contains(search_key))
                             {
                                 await context.PostAsync($"Lesson with Course Code {search_key}");
-                                await context.PostAsync(String.Format("{0} \t |CRN  {1} \t | CourseCode" +
-                                "{2} \t | CourseTitle {3} \t | Instructor {4} \t |Day {5} \t |Time ",
-                                reader[0], reader[1], reader[2], reader[3], reader[5], reader[6]));
+                                await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
+                                "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
+                                "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8}",
+                                reader[0], reader[1], reader[2], reader[3], reader[4], reader[5], reader[6],
+                                reader[7], reader[8]));
                             }
                         }
-                    }            
-            }
+                        await context.PostAsync("Do you know? You can find lecture notes for this course and other courses in Mert Kırtasiye located Main Campus");
 
+                }
+            }
             conn.Close();
             context.Wait(MessageReceived);
         }
@@ -214,26 +223,34 @@ namespace Database.Dialogs
 
             if(location=="yemekhane")
             {
-                await context.PostAsync($"");
+                await context.PostAsync($"https://goo.gl/maps/ygfp7KGjT7p");
             }
             else if(location=="mediko")
             {
-                await context.PostAsync($"");
-            }
-            else if (location=="bilgi islem")
-            {
-                await context.PostAsync($"");
+                await context.PostAsync($"https://goo.gl/maps/KTENZLoRuNT2");
             }
             else if (location=="ogrenci isleri")
             {
-                await context.PostAsync($"");
+                await context.PostAsync($"https://goo.gl/maps/oUfPT19Boe22");
             }
             else if (location=="med")
             {
-                await context.PostAsync($"");
+                await context.PostAsync($"https://goo.gl/maps/DioWWKCFRaU2");
+            }
+            else if (location=="eeb")
+            {
+                await context.PostAsync($"https://goo.gl/maps/zfCAP9Zntz22");
             }
             context.Wait(MessageReceived);
         }
 
+        [LuisIntent("CheckMeal")]
+        public async Task  CheckMeal(IDialogContext context, LuisResult result)
+        {
+            await context.PostAsync($" The Meal is: BALIK PANE, ETSIZ BULGURLU ISPANAK" +
+                $"SALCALI MAKARNA , ROKA SALATASI , OSMANLI TULUMBA TATLISI");
+            await context.PostAsync($"Do you know ? Today  KOFTE IZGARA menu in FanFan Cafe is just 15 tl");
+
+        }
     }
 }
