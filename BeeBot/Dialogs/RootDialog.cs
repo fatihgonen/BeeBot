@@ -180,25 +180,23 @@ namespace Database.Dialogs
                             //    await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
                             //    "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
                             //    "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8} ",
-                            //    reader[0], reader[1], reader[2], reader[3], reader[4],  reader [5], reader[6],reader[7],reader[8]));                        
-
-                            var receipt = new ReceiptCard
+                            //    reader[0], reader[1], reader[2], reader[3], reader[4],  reader [5], reader[6],reader[7],reader[8]));                                                  
+                        
+                            var hero = new HeroCard
                             {
 
                                 Title = reader[2].ToString(),
-                                Facts = new List<Fact> { new Fact("CRN", reader[0].ToString()),
-                                new Fact("CourseCode",reader[1].ToString()), new Fact("Instructor",reader[3].ToString()),
-                                new Fact("Building",reader[4].ToString()), new Fact("Day",reader[5].ToString()),
-                                new Fact("Time",reader[6].ToString()), new Fact("Room",reader[7].ToString()),
-                            },
-                                Tax=null,
-                                Total=null,
+                                Text = "CourseCode: "+reader[1].ToString()+"\nInstructor: "+reader[3].ToString()+
+                                "\nBuilding: "+ reader[4].ToString()+
+                                "\nDay: " +reader[5].ToString()+
+                                "\nTime: "+ reader[6].ToString()+
+                                "\nRoom: "+ reader[7].ToString()+"\nCapacity: "+reader[8].ToString()
+                                
                             };
-                            var message1 = context.MakeMessage();
-                            message1.Attachments = new List<Attachment>();
-                            message1.Attachments.Add(receipt.ToAttachment());
-                            await context.PostAsync(message1);
-
+                            var message2 = context.MakeMessage();
+                            message2.Attachments = new List<Attachment>();
+                            message2.Attachments.Add(hero.ToAttachment());
+                            await context.PostAsync(message2);
                         }
                     }
                     }
@@ -208,13 +206,22 @@ namespace Database.Dialogs
                         {
                             if (reader[3].ToString().ToLower().Contains(search_key))
                             {
-                                await context.PostAsync($"Lesson with Lecturer {search_key}");
-                                await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
-                                "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
-                                "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8}",
-                                reader[0], reader[1], reader[2], reader[3], reader[4], reader[5], reader[6],
-                                reader[7], reader[8]));
-                            }
+                            var hero = new HeroCard
+                            {
+
+                                Title = reader[2].ToString(),
+                                Text = "CourseCode: " + reader[1].ToString() + "\nInstructor: " + reader[3].ToString() +
+                                 "\nBuilding: " + reader[4].ToString() +
+                                 "\nDay: " + reader[5].ToString() +
+                                 "\nTime: " + reader[6].ToString() +
+                                 "\nRoom: " + reader[7].ToString() + "\nCapacity: " + reader[8].ToString()
+
+                            };
+                            var message2 = context.MakeMessage();
+                            message2.Attachments = new List<Attachment>();
+                            message2.Attachments.Add(hero.ToAttachment());
+                            await context.PostAsync(message2);
+                        }
                         }
                     }   
                     else if (search_type == "CourseCode")
@@ -223,39 +230,26 @@ namespace Database.Dialogs
                         {
                             if (reader[1].ToString().ToLower().Contains(search_key))
                             {
-                                await context.PostAsync($"Lesson with Course Code {search_key}");
-                                await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
-                                "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
-                                "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8}",
-                                reader[0], reader[1], reader[2], reader[3], reader[4], reader[5], reader[6],
-                                reader[7], reader[8]));
+                            var hero = new HeroCard
+                            {
+
+                                Title = reader[2].ToString(),
+                                Text = "CourseCode: " + reader[1].ToString() + "\nInstructor: " + reader[3].ToString() +
+                                "\nBuilding: " + reader[4].ToString() +
+                                "\nDay: " + reader[5].ToString() +
+                                "\nTime: " + reader[6].ToString() +
+                                "\nRoom: " + reader[7].ToString() + "\nCapacity: " + reader[8].ToString()
+
+                            };
+                            var message2 = context.MakeMessage();
+                            message2.Attachments = new List<Attachment>();
+                            message2.Attachments.Add(hero.ToAttachment());
+                            await context.PostAsync(message2);
                             }
                         }
                         await context.PostAsync("Do you know? You can find lecture notes for this course and other courses in Mert Kırtasiye located Main Campus");
-
                     }
             }
-
-            var message = context.MakeMessage();
-
-            var receiptCard = new ReceiptCard
-            {
-                Title = "John Doe",
-                Facts = new List<Fact> { new Fact("Order Number", "1234"), new Fact("Payment Method", "VISA 5555-****") },
-                Tax = "$ 7.50",
-                Total = "$ 90.95",
-            };
-
-            message.Attachments = new List<Attachment>();
-            message.Attachments.Add(receiptCard.ToAttachment());
-
-
-
-            await context.PostAsync(message);
-
-
-
-
             conn.Close();
             context.Wait(MessageReceived);
         }
