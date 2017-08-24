@@ -11,6 +11,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Database;
+using Microsoft.Bot.Connector;
 
 namespace Database.Dialogs
 {
@@ -36,6 +37,11 @@ namespace Database.Dialogs
             await context.PostAsync($"Hi i am a BeeBot and i am here to help ITU students. If you want further information about how to use please try writing help.");
             //Coure_db data = new Coure_db();
             //data.Lecturer_info();
+
+
+
+
+
             context.Wait(MessageReceived);
         }
         [LuisIntent("Help")]
@@ -162,20 +168,39 @@ namespace Database.Dialogs
             search_type = result.Entities[0].Type;
 
             using (SqlDataReader reader = command.ExecuteReader())
-            {     
+            {
+                List<Fact> lesson = new List<Fact>();
                     if (search_type == "CRN")
                     {
                         while (reader.Read())
                         {
                             if (reader[0].ToString().ToLower().Contains(search_key))
                             {
-                                await context.PostAsync($"Lesson with CRN {search_key}");
-                                await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
-                                "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
-                                "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8} ",
-                                reader[0], reader[1], reader[2], reader[3], reader[4],  reader [5], reader[6],reader[7],reader[8]));                        
-                            }
+                            //    await context.PostAsync($"Lesson with CRN {search_key}");
+                            //    await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
+                            //    "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
+                            //    "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8} ",
+                            //    reader[0], reader[1], reader[2], reader[3], reader[4],  reader [5], reader[6],reader[7],reader[8]));                        
+
+                            var receipt = new ReceiptCard
+                            {
+
+                                Title = reader[2].ToString(),
+                                Facts = new List<Fact> { new Fact("CRN", reader[0].ToString()),
+                                new Fact("CourseCode",reader[1].ToString()), new Fact("Instructor",reader[3].ToString()),
+                                new Fact("Building",reader[4].ToString()), new Fact("Day",reader[5].ToString()),
+                                new Fact("Time",reader[6].ToString()), new Fact("Room",reader[7].ToString()),
+                            },
+                                Tax=null,
+                                Total=null,
+                            };
+                            var message1 = context.MakeMessage();
+                            message1.Attachments = new List<Attachment>();
+                            message1.Attachments.Add(receipt.ToAttachment());
+                            await context.PostAsync(message1);
+
                         }
+                    }
                     }
                     else if (search_type == "LecturerName")
                     {
@@ -208,8 +233,29 @@ namespace Database.Dialogs
                         }
                         await context.PostAsync("Do you know? You can find lecture notes for this course and other courses in Mert Kırtasiye located Main Campus");
 
-                }
+                    }
             }
+
+            var message = context.MakeMessage();
+
+            var receiptCard = new ReceiptCard
+            {
+                Title = "John Doe",
+                Facts = new List<Fact> { new Fact("Order Number", "1234"), new Fact("Payment Method", "VISA 5555-****") },
+                Tax = "$ 7.50",
+                Total = "$ 90.95",
+            };
+
+            message.Attachments = new List<Attachment>();
+            message.Attachments.Add(receiptCard.ToAttachment());
+
+
+
+            await context.PostAsync(message);
+
+
+
+
             conn.Close();
             context.Wait(MessageReceived);
         }
