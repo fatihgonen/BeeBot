@@ -176,22 +176,22 @@ namespace Database.Dialogs
                         {
                             if (reader[0].ToString().ToLower().Contains(search_key))
                             {
-                                var receipt = new ReceiptCard
+                                var thumb= new ThumbnailCard
                                 {
 
                                     Title = reader[2].ToString(),
-                                    Facts = new List<Fact> { new Fact("CRN", reader[0].ToString()),
-                                        new Fact("CourseCode",reader[1].ToString()), new Fact("Instructor",reader[3].ToString()),
-                                        new Fact("Building",reader[4].ToString()), new Fact("Day",reader[5].ToString()),
-                                        new Fact("Time",reader[6].ToString()), new Fact("Room",reader[7].ToString()),
-                                        new Fact("Capacity",reader[8].ToString()),
-                                    },
-                                    Tax = null,
-                                    Total = null,
+                        
+                                    Text = "CourseCode: " + reader[1].ToString() + "\nInstructor: " + reader[3].ToString() +
+                                    "\nBuilding: " + reader[4].ToString() +
+                                    "\nDay: " + reader[5].ToString() +
+                                    "\nTime: " + reader[6].ToString() +
+                                    "\nRoom: " + reader[7].ToString() + "\nCapacity: " + reader[8].ToString()
+                                
+     
                                 };
                                 var message1 = context.MakeMessage();
                                 message1.Attachments = new List<Attachment>();
-                                message1.Attachments.Add(receipt.ToAttachment());
+                                message1.Attachments.Add(thumb.ToAttachment());
                                 await context.PostAsync(message1);
                             }
                         }
@@ -202,24 +202,23 @@ namespace Database.Dialogs
                         {
                             if (reader[3].ToString().ToLower().Contains(search_key))
                             {
-                                var receipt = new ReceiptCard
-                                {
+                            var thumb = new ThumbnailCard
+                            {
 
-                                    Title = reader[2].ToString(),
-                                    Facts = new List<Fact> { new Fact("CRN", reader[0].ToString()),
-                                    new Fact("CourseCode",reader[1].ToString()), new Fact("Instructor",reader[3].ToString()),
-                                    new Fact("Building",reader[4].ToString()), new Fact("Day",reader[5].ToString()),
-                                    new Fact("Time",reader[6].ToString()), new Fact("Room",reader[7].ToString()),
-                                    new Fact("Capacity",reader[8].ToString()),
+                                Title = reader[2].ToString(),
 
-                                },
-                                    Tax = null,
-                                    Total =null,                                 
-                                };
-                                var message1 = context.MakeMessage();
-                                message1.Attachments = new List<Attachment>();
-                                message1.Attachments.Add(receipt.ToAttachment());
-                                await context.PostAsync(message1);
+                                Text = "CourseCode: " + reader[1].ToString() + "\nInstructor: " + reader[3].ToString() +
+                                "\nBuilding: " + reader[4].ToString() +
+                                "\nDay: " + reader[5].ToString() +
+                                "\nTime: " + reader[6].ToString() +
+                                "\nRoom: " + reader[7].ToString() + "\nCapacity: " + reader[8].ToString()
+
+
+                            };
+                            var message1 = context.MakeMessage();
+                            message1.Attachments = new List<Attachment>();
+                            message1.Attachments.Add(thumb.ToAttachment());
+                            await context.PostAsync(message1);
                         }
                         }
                     }   
@@ -227,26 +226,25 @@ namespace Database.Dialogs
                     {
                         while (reader.Read())
                         {
-                            if (reader[1].ToString().ToLower().Contains(search_key))
-                            {
-                                var receipt = new ReceiptCard
-                                {
-                                    Title = reader[2].ToString(),
-                                    Facts = new List<Fact> { new Fact("CRN", reader[0].ToString()),
-                                        new Fact("CourseCode",reader[1].ToString()), new Fact("Instructor",reader[3].ToString()),
-                                        new Fact("Building",reader[4].ToString()), new Fact("Day",reader[5].ToString()),
-                                        new Fact("Time",reader[6].ToString()), new Fact("Room",reader[7].ToString()),
-                                        new Fact("Capacity",reader[8].ToString()),
-                                    },
-                                    Tax = null,
-                                    Total = null,
-                                };
-                                var message1 = context.MakeMessage();
-                                message1.Attachments = new List<Attachment>();
-                                message1.Attachments.Add(receipt.ToAttachment());
-                                await context.PostAsync(message1);
-                        }
-                        }
+                        var thumb = new ThumbnailCard
+                        {
+
+                            Title = reader[2].ToString(),
+
+                            Text = "CourseCode: " + reader[1].ToString() + "\nInstructor: " + reader[3].ToString() +
+                                "\nBuilding: " + reader[4].ToString() +
+                                "\nDay: " + reader[5].ToString() +
+                                "\nTime: " + reader[6].ToString() +
+                                "\nRoom: " + reader[7].ToString() + "\nCapacity: " + reader[8].ToString()
+
+
+                        };
+                        var message1 = context.MakeMessage();
+                        message1.Attachments = new List<Attachment>();
+                        message1.Attachments.Add(thumb.ToAttachment());
+                        await context.PostAsync(message1);
+                    }
+                        
                         await context.PostAsync("Do you know? You can find lecture notes for this course and other courses in Mert Kırtasiye located Main Campus");
                     }
             }
@@ -287,18 +285,18 @@ namespace Database.Dialogs
         [LuisIntent("CheckMeal")]
         public async Task  CheckMeal(IDialogContext context, LuisResult result)
         {
-            //await context.PostAsync($" The Meal is: BALIK PANE, ETSIZ BULGURLU ISPANAK" +
-            //    $"SALCALI MAKARNA , ROKA SALATASI , OSMANLI TULUMBA TATLISI");
-            var hero = new ReceiptCard
+           // await context.PostAsync($" The Meal is: BALIK PANE, ETSIZ BULGURLU ISPANAK" +
+            // $"SALCALI MAKARNA , ROKA SALATASI , OSMANLI TULUMBA TATLISI");
+            var hero = new ThumbnailCard
             {
                 Title = "Today's Menu:",
-                Facts = {new Fact("BALIK PANE",""),new Fact("ETSIZ BULGURLU ISPANAK",""),
-                    new Fact("SALCALI MAKARNA",""),new Fact("ROKA SALATASI",""),
-                    new Fact("OSMANLI TULUMBA TATLISI",""), },
-                Tax = null,
-                Total = null,
+                Text = "BALIK PANE"+
+                "\nETSIZ BULGURLU ISPANAK"+
+                "\nSALCALI MAKARNA"+"ROKA SALATASI"+
+                "\nOSMANLI TULUMBA TATLISI",
+
             };
-            var message2 = context.MakeMessage();
+    var message2 = context.MakeMessage();
             message2.Attachments = new List<Attachment>();
             message2.Attachments.Add(hero.ToAttachment());
             await context.PostAsync(message2);
