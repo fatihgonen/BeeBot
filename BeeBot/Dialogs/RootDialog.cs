@@ -186,6 +186,8 @@ namespace Database.Dialogs
                                         new Fact("Time",reader[6].ToString()), new Fact("Room",reader[7].ToString()),
                                         new Fact("Capacity",reader[8].ToString()),
                                     },
+                                    Tax = null,
+                                    Total = null,
                                 };
                                 var message1 = context.MakeMessage();
                                 message1.Attachments = new List<Attachment>();
@@ -209,7 +211,10 @@ namespace Database.Dialogs
                                     new Fact("Building",reader[4].ToString()), new Fact("Day",reader[5].ToString()),
                                     new Fact("Time",reader[6].ToString()), new Fact("Room",reader[7].ToString()),
                                     new Fact("Capacity",reader[8].ToString()),
+
                                 },
+                                    Tax = null,
+                                    Total =null,                                 
                                 };
                                 var message1 = context.MakeMessage();
                                 message1.Attachments = new List<Attachment>();
@@ -233,6 +238,8 @@ namespace Database.Dialogs
                                         new Fact("Time",reader[6].ToString()), new Fact("Room",reader[7].ToString()),
                                         new Fact("Capacity",reader[8].ToString()),
                                     },
+                                    Tax = null,
+                                    Total = null,
                                 };
                                 var message1 = context.MakeMessage();
                                 message1.Attachments = new List<Attachment>();
@@ -287,7 +294,9 @@ namespace Database.Dialogs
                 Title = "Today's Menu:",
                 Facts = {new Fact("BALIK PANE",""),new Fact("ETSIZ BULGURLU ISPANAK",""),
                     new Fact("SALCALI MAKARNA",""),new Fact("ROKA SALATASI",""),
-                    new Fact("OSMANLI TULUMBA TATLISI",""), }
+                    new Fact("OSMANLI TULUMBA TATLISI",""), },
+                Tax = null,
+                Total = null,
             };
             var message2 = context.MakeMessage();
             message2.Attachments = new List<Attachment>();
