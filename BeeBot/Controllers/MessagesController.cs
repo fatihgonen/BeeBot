@@ -29,7 +29,9 @@ namespace Database
             }
             var response = Request.CreateResponse(HttpStatusCode.OK);
             return response;
+
         }
+
         private Activity HandleSystemMessage(Activity message)
         {
             if (message.Type == ActivityTypes.DeleteUserData)

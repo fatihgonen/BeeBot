@@ -11,7 +11,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Database;
-using Microsoft.Bot.Connector;
 
 namespace Database.Dialogs
 {
@@ -37,11 +36,6 @@ namespace Database.Dialogs
             await context.PostAsync($"Hi i am a BeeBot and i am here to help ITU students. If you want further information about how to use please try writing help.");
             //Coure_db data = new Coure_db();
             //data.Lecturer_info();
-
-
-
-
-
             context.Wait(MessageReceived);
         }
         [LuisIntent("Help")]
@@ -168,31 +162,18 @@ namespace Database.Dialogs
             search_type = result.Entities[0].Type;
 
             using (SqlDataReader reader = command.ExecuteReader())
-            {
-                List<Fact> lesson = new List<Fact>();
+            {     
                     if (search_type == "CRN")
                     {
                         while (reader.Read())
                         {
                             if (reader[0].ToString().ToLower().Contains(search_key))
                             {
-                                var thumb= new ThumbnailCard
-                                {
-
-                                    Title = reader[2].ToString(),
-                        
-                                    Text = "CourseCode: " + reader[1].ToString() + "\nInstructor: " + reader[3].ToString() +
-                                    "\nBuilding: " + reader[4].ToString() +
-                                    "\nDay: " + reader[5].ToString() +
-                                    "\nTime: " + reader[6].ToString() +
-                                    "\nRoom: " + reader[7].ToString() + "\nCapacity: " + reader[8].ToString()
-                                
-     
-                                };
-                                var message1 = context.MakeMessage();
-                                message1.Attachments = new List<Attachment>();
-                                message1.Attachments.Add(thumb.ToAttachment());
-                                await context.PostAsync(message1);
+                                await context.PostAsync($"Lesson with CRN {search_key}");
+                                await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
+                                "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
+                                "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8} ",
+                                reader[0], reader[1], reader[2], reader[3], reader[4],  reader [5], reader[6],reader[7],reader[8]));                        
                             }
                         }
                     }
@@ -202,51 +183,32 @@ namespace Database.Dialogs
                         {
                             if (reader[3].ToString().ToLower().Contains(search_key))
                             {
-                            var thumb = new ThumbnailCard
-                            {
-
-                                Title = reader[2].ToString(),
-
-                                Text = "CourseCode: " + reader[1].ToString() + "\nInstructor: " + reader[3].ToString() +
-                                "\nBuilding: " + reader[4].ToString() +
-                                "\nDay: " + reader[5].ToString() +
-                                "\nTime: " + reader[6].ToString() +
-                                "\nRoom: " + reader[7].ToString() + "\nCapacity: " + reader[8].ToString()
-
-
-                            };
-                            var message1 = context.MakeMessage();
-                            message1.Attachments = new List<Attachment>();
-                            message1.Attachments.Add(thumb.ToAttachment());
-                            await context.PostAsync(message1);
-                        }
+                                await context.PostAsync($"Lesson with Lecturer {search_key}");
+                                await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
+                                "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
+                                "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8}",
+                                reader[0], reader[1], reader[2], reader[3], reader[4], reader[5], reader[6],
+                                reader[7], reader[8]));
+                            }
                         }
                     }   
                     else if (search_type == "CourseCode")
                     {
                         while (reader.Read())
                         {
-                        var thumb = new ThumbnailCard
-                        {
-
-                            Title = reader[2].ToString(),
-
-                            Text = "CourseCode: " + reader[1].ToString() + "\nInstructor: " + reader[3].ToString() +
-                                "\nBuilding: " + reader[4].ToString() +
-                                "\nDay: " + reader[5].ToString() +
-                                "\nTime: " + reader[6].ToString() +
-                                "\nRoom: " + reader[7].ToString() + "\nCapacity: " + reader[8].ToString()
-
-
-                        };
-                        var message1 = context.MakeMessage();
-                        message1.Attachments = new List<Attachment>();
-                        message1.Attachments.Add(thumb.ToAttachment());
-                        await context.PostAsync(message1);
-                    }
-                        
+                            if (reader[1].ToString().ToLower().Contains(search_key))
+                            {
+                                await context.PostAsync($"Lesson with Course Code {search_key}");
+                                await context.PostAsync(String.Format("CRN: {0} \t\t |CourseCode:  {1} \t\t |" +
+                                "CourseTitle: {2} \t |Instructor: {3} \t\t |Building: {4} \t\t |Day {5} \t |" +
+                                "Time: {6} \t\t |Room: {7} \t\t |Capacity: {8}",
+                                reader[0], reader[1], reader[2], reader[3], reader[4], reader[5], reader[6],
+                                reader[7], reader[8]));
+                            }
+                        }
                         await context.PostAsync("Do you know? You can find lecture notes for this course and other courses in Mert Kırtasiye located Main Campus");
-                    }
+
+                }
             }
             conn.Close();
             context.Wait(MessageReceived);
@@ -285,21 +247,8 @@ namespace Database.Dialogs
         [LuisIntent("CheckMeal")]
         public async Task  CheckMeal(IDialogContext context, LuisResult result)
         {
-           // await context.PostAsync($" The Meal is: BALIK PANE, ETSIZ BULGURLU ISPANAK" +
-            // $"SALCALI MAKARNA , ROKA SALATASI , OSMANLI TULUMBA TATLISI");
-            var hero = new ThumbnailCard
-            {
-                Title = "Today's Menu:",
-                Text = "BALIK PANE"+
-                "\nETSIZ BULGURLU ISPANAK"+
-                "\nSALCALI MAKARNA"+"ROKA SALATASI"+
-                "\nOSMANLI TULUMBA TATLISI",
-
-            };
-    var message2 = context.MakeMessage();
-            message2.Attachments = new List<Attachment>();
-            message2.Attachments.Add(hero.ToAttachment());
-            await context.PostAsync(message2);
+            await context.PostAsync($" The Meal is: BALIK PANE, ETSIZ BULGURLU ISPANAK" +
+                $"SALCALI MAKARNA , ROKA SALATASI , OSMANLI TULUMBA TATLISI");
             await context.PostAsync($"Do you know ? Today  KOFTE IZGARA menu in FanFan Cafe is just 15 tl");
 
         }
